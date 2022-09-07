@@ -10,13 +10,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -109,18 +107,7 @@ public class UserControllerTest {
                                 .content(objectMapper.writeValueAsString(user1))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
-                .andExpect(status().isBadRequest())
-                .andExpect(mvcResult -> mvcResult.getResolvedException().getClass().equals(ValidationException.class));
-    }
-
-    @Test
-    public void userGetAll() throws Exception {
-        User user = new User(1,"mail@.ru", "login", "name", BIRTHDAY);
-        userController.create(user);
-        mockMvc.perform(
-                        get("/users"))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(List.of(user))));
+                .andExpect(status().isNotFound());
     }
 
     @Test

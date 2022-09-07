@@ -122,18 +122,6 @@ class FilmControllerTest {
                                 .content(objectMapper.writeValueAsString(film1))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
-                .andExpect(status().isBadRequest())
-                .andExpect(mvcResult -> mvcResult.getResolvedException().getClass().equals(ValidationException.class));
-    }
-
-    @Test
-    public void filmGetAll() throws Exception {
-        Film film = new Film(1, "filmGetAll", RandomString.make(100), RELEASE_DATA, 120);
-        filmController.create(film);
-
-        mockMvc.perform(
-                        get("/films"))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(List.of(film))));
+                .andExpect(status().isNotFound());
     }
 }
