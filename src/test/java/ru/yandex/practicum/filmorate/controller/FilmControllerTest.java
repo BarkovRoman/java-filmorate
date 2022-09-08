@@ -11,19 +11,17 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 
 @AutoConfigureMockMvc
 @SpringBootTest
 class FilmControllerTest {
-    private final LocalDate RELEASE_DATA = LocalDate.of(1895, 12, 28);
+    private static final LocalDate RELEASE_DATA = LocalDate.of(1895, 12, 28);
 
     @Autowired
     private MockMvc mockMvc;

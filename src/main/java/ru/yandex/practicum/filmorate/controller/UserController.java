@@ -1,20 +1,22 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
-import java.util.*;
+import javax.validation.Valid;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
+
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final static Logger log = LoggerFactory.getLogger(UserController.class);
     private final Map<Integer, User> users = new HashMap<>();
     private int id = 0;
 
@@ -24,7 +26,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity create(@RequestBody User user) {
+    public ResponseEntity create(@Valid @RequestBody User user) {
         validation(user);
         id++;
         user.setId(id);
@@ -34,7 +36,7 @@ public class UserController {
     }
 
     @PutMapping
-    public ResponseEntity<Object> put(@RequestBody User user) {
+    public ResponseEntity<Object> put(@Valid @RequestBody User user) {
         validation(user);
         int id = user.getId();
 
@@ -49,23 +51,13 @@ public class UserController {
     }
 
     private void validation(User user) {
-        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            log.error("Ошибка ввода email");
-            throw new ValidationException("электронная почта не может быть пустой и должна содержать символ @");
-        }
-
-        if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
+        if (user.getLogin().contains(" ")) {
             log.error("Ошибка ввода логин");
             throw new ValidationException("логин не может быть пустым и содержать пробелы");
         }
 
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
-        }
-
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.error("Ошибка ввода даты рождения. Вы ввели {}", user.getBirthday());
-            throw new ValidationException("Дата рождения не может быть позже текущей даты");
         }
     }
 }

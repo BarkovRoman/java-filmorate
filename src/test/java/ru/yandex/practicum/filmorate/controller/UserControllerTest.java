@@ -19,7 +19,7 @@ import java.time.LocalDate;
 @AutoConfigureMockMvc
 @SpringBootTest
 public class UserControllerTest {
-    private final LocalDate BIRTHDAY = LocalDate.now().minusDays(1);
+    private static final LocalDate BIRTHDAY = LocalDate.now();
 
     @Autowired
     private MockMvc mockMvc;
@@ -72,7 +72,7 @@ public class UserControllerTest {
 
     @Test
     public void userCreateBirthday() throws Exception {
-        User user = new User(1,"mail.ru", "login", "name", BIRTHDAY.plusDays(5));
+        User user = new User(1,"mail@mail.ru", "login", "name", BIRTHDAY.plusDays(1));
         mockMvc.perform(
                         post("/users")
                                 .content(objectMapper.writeValueAsString(user))
@@ -84,8 +84,8 @@ public class UserControllerTest {
 
     @Test
     public void userUpdate() throws Exception {
-        User user = new User(1,"mail@.ru", "login", "name", BIRTHDAY);
-        User user1 = new User(1,"mail@.ru", "login", "newName", BIRTHDAY);
+        User user = new User(1,"mail@mail.ru", "login", "name", BIRTHDAY);
+        User user1 = new User(1,"mail@mail.ru", "login", "newName", BIRTHDAY);
         userController.create(user);
         mockMvc.perform(
                         put("/users")
@@ -99,8 +99,8 @@ public class UserControllerTest {
 
     @Test
     public void userUpdateId() throws Exception {
-        User user = new User(1,"mail@.ru", "login", "name", BIRTHDAY);
-        User user1 = new User(-1,"mail@.ru", "login", "newName", BIRTHDAY);
+        User user = new User(1,"mail@mail.ru", "login", "name", BIRTHDAY);
+        User user1 = new User(-1,"mail@mail.ru", "login", "newName", BIRTHDAY);
         userController.create(user);
         mockMvc.perform(
                         put("/users")
@@ -112,7 +112,7 @@ public class UserControllerTest {
 
     @Test
     public void userCreateLogin() throws Exception {
-        User user = new User(1,"mail@.ru", "login login", "", BIRTHDAY);
+        User user = new User(1,"mail@mail.ru", "login login", "", BIRTHDAY);
         mockMvc.perform(
                         post("/users")
                                 .content(objectMapper.writeValueAsString(user))

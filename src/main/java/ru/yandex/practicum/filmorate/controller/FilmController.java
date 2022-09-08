@@ -1,23 +1,23 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
     private final Map<Integer, Film> films = new HashMap<>();
     private int id = 0;
-    private final LocalDate RELEASE_DATA = LocalDate.of(1895, 12, 28);
-    private final static Logger log = LoggerFactory.getLogger(FilmController.class);
+    private final static LocalDate RELEASE_DATA = LocalDate.of(1895, 12, 28);
 
     @GetMapping
     public Collection<Film> findAll() {
@@ -25,7 +25,7 @@ public class FilmController {
     }
 
     @PostMapping
-    public ResponseEntity<Film> create(@RequestBody Film film) {
+    public ResponseEntity<Film> create(@Valid @RequestBody Film film) {
         validation(film);
         id++;
         film.setId(id);
@@ -35,7 +35,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public ResponseEntity<Film> put(@RequestBody Film film) {
+    public ResponseEntity<Film> put(@Valid @RequestBody Film film) {
         validation(film);
         int id = film.getId();
 
@@ -50,24 +50,9 @@ public class FilmController {
     }
 
     private void validation(Film film) {
-        if (film.getName() == null || film.getName().isBlank()) {
-            log.error("Ошибка ввода названия");
-            throw new ValidationException("Название не может быть пустым");
-        }
-
-        if (film.getDescription().length() > 200) {
-            log.error("Ошибка ввода описания, введено {} символов", film.getDescription().length());
-            throw new ValidationException("Максимальная длина описания — 200 символов");
-        }
-
-        if (film.getReleaseDate().isBefore(RELEASE_DATA)) {
+       if (film.getReleaseDate().isBefore(RELEASE_DATA) ) {
             log.error("Ошибка ввода даты релиза. Вы ввели {}", film.getReleaseDate());
             throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
-        }
-
-        if (film.getDuration() <= 0) {
-            log.error("Ошибка ввода продолжительности");
-            throw new ValidationException("Продолжительность не может быть пустой");
         }
     }
 }
