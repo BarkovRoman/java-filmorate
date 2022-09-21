@@ -5,7 +5,6 @@ import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.io.FileNotFoundException;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
