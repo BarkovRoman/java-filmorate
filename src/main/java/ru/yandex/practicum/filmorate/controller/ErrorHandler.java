@@ -38,5 +38,4 @@ public class ErrorHandler {
                 String.format("Ошибка с полем \"%s\".", e.getParameter())
         );
     }
-
 }

@@ -55,7 +55,7 @@ public class FilmController {
         return filmService.deleteLike(filmId, userId);
     }
 
-    @GetMapping("/popular?count={count}") // Возвращает список из первых "count" фильмов по количеству лайков
+    @GetMapping("/popular") // Возвращает список из первых "count" фильмов по количеству лайков
     public Collection<Film> findMoviesByLikes(
             @RequestParam(defaultValue = COUNT_POPULAR_MOVIES, required = false) Integer count) {
         if (count < 0) {

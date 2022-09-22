@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 import lombok.AllArgsConstructor;
@@ -13,7 +14,7 @@ import javax.validation.constraints.*;
 public class User {
     private int id;
 
-    private Set<Integer> friends;
+    private final Set<Integer> friends = new HashSet<>();
 
     @Email(message = "Не верный адрес Email")
     private String email;

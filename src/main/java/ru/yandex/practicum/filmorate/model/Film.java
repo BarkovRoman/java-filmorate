@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 import lombok.AllArgsConstructor;
@@ -15,7 +16,7 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 public class Film {
     private int id;
-    private Set<Integer> like;
+    private final Set<Integer> like = new HashSet<>();
 
     @NotBlank(message = "Name = NotBlank")
     private String name;

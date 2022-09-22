@@ -58,8 +58,4 @@ public class UserService {
                 .filter(f -> friendsUser.getFriends().contains(f.getId()))
                 .collect(Collectors.toList());
     }
-
-
-
-
 }
