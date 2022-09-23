@@ -1,26 +1,37 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
 
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
+    public List<User> allUser() {
+        return userStorage.allUser();
+    }
+
+    public User addUser(User user) {
+        return userStorage.addUser(user);
+    }
+
+    public User updateUser(User user) {
+        return userStorage.updateUser(user);
     }
 
     public User getUserById(Integer id) {
         return userStorage.allUser().stream()
                 .filter(f -> f.getId() == id)
                 .findFirst()
-                .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь № %d не найден", id )));
+                .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь № %d не найден", id)));
     }
 
     public User addFriends(Integer userId, Integer friendId) {
@@ -41,21 +52,19 @@ public class UserService {
         return user;
     }
 
-    public Collection<User> allFriends(Integer userId) {
+    public List<User> allFriends(Integer userId) {
         User user = getUserById(userId);
-
-        return userStorage.allUser().stream()
-                .filter(f -> user.getFriends().contains(f.getId()))
+        return user.getFriends().stream()
+                .map(this::getUserById)
                 .collect(Collectors.toList());
     }
 
-    public Collection<User> mutualFriends(Integer userId, Integer otherId) {  // вывод списка общих друзей
+    public List<User> mutualFriends(Integer userId, Integer otherId) {  // вывод списка общих друзей
         User user = getUserById(userId);
         User friendsUser = getUserById(otherId);
 
-        return userStorage.allUser().stream()
-                .filter(f -> user.getFriends().contains(f.getId()))
-                .filter(f -> friendsUser.getFriends().contains(f.getId()))
+        return Stream.concat(user.getFriends().stream(), friendsUser.getFriends().stream())
+                .map(this::getUserById)
                 .collect(Collectors.toList());
     }
 }

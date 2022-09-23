@@ -17,6 +17,7 @@ public class User {
     private final Set<Integer> friends = new HashSet<>();
 
     @Email(message = "Не верный адрес Email")
+    @NotNull(message = "Email = null")
     private String email;
 
     @NotBlank(message = "Login = NotBlank")
@@ -35,5 +36,4 @@ public class User {
     public void removeFriends(Integer id) {
         friends.remove(id);
     }
-
 }

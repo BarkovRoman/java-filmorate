@@ -1,37 +1,37 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import javax.validation.Valid;
-import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final UserStorage userStorage;
     private final UserService userService;
 
-    public UserController(UserStorage userStorage, UserService userService) {
-        this.userStorage = userStorage;
+    public UserController(UserService userService) {
         this.userService = userService;
     }
-    @GetMapping
-    public Collection<User> findAll() {
-        return userStorage.allUser();
-    }
 
+    @GetMapping
+    public List<User> findAll() {
+        return userService.allUser();
+    }
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        return userStorage.addUser(user);
+        validation(user);
+        return userService.addUser(user);
     }
 
     @PutMapping
     public User put(@Valid @RequestBody User user) {
-        return userStorage.updateUser(user);
+        validation(user);
+        return userService.updateUser(user);
     }
 
     @GetMapping("/{id}")
@@ -50,12 +50,22 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")  // Возвращаем список пользователей, являющихся его друзьями
-    public Collection<User> friends(@PathVariable Integer id) {
+    public List<User> friends(@PathVariable Integer id) {
         return userService.allFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}") // список друзей, общих с другим пользователем
-    public Collection<User> mutualFriends(@PathVariable("id") Integer userId, @PathVariable Integer otherId) {
+    public List<User> mutualFriends(@PathVariable("id") Integer userId, @PathVariable Integer otherId) {
         return userService.mutualFriends(userId, otherId);
+    }
+
+    private void validation(User user) {
+        if (user.getLogin().contains(" ")) {
+            throw new ValidationException("логин не может быть пустым и содержать пробелы");
+        }
+
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
     }
 }

@@ -1,33 +1,33 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-@Component
+@Repository
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> users = new HashMap<>();
     private int userIid = 0;
 
-    public Collection<User> allUser() {
-        return users.values();
+    @Override
+    public List<User> allUser() {
+        return List.copyOf(users.values());
     }
 
+    @Override
     public User addUser(User user) {
-        validation(user);
         userIid++;
         user.setId(userIid);
         users.put(userIid, user);
         return user;
     }
 
+    @Override
     public User updateUser(User user) {
-        validation(user);
         int id = user.getId();
 
         if (users.containsKey(id)) {
@@ -35,16 +35,6 @@ public class InMemoryUserStorage implements UserStorage {
             return user;
         } else {
             throw new UserNotFoundException(String.format("Пользователь № %d не найден", id ));
-        }
-    }
-
-    private void validation(User user) {
-        if (user.getLogin().contains(" ")) {
-            throw new ValidationException("логин не может быть пустым и содержать пробелы");
-        }
-
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
         }
     }
 }

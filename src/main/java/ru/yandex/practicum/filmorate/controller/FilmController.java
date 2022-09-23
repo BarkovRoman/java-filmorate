@@ -1,43 +1,44 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import javax.validation.Valid;
-import java.util.*;
+import javax.validation.constraints.Positive;
+import java.util.List;
 
 import static ru.yandex.practicum.filmorate.Constants.COUNT_POPULAR_MOVIES;
+import static ru.yandex.practicum.filmorate.Constants.RELEASE_DATA;
 
 @Slf4j
+@Validated
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-
-    private final FilmStorage filmStorage;
     private final FilmService filmService;
-    public FilmController(FilmStorage filmStorage, FilmService filmService) {
-        this.filmStorage = filmStorage;
+    public FilmController(FilmService filmService) {
         this.filmService = filmService;
     }
 
     @GetMapping
-    public Collection<Film> findAll() {
-        return filmStorage.allFilm();
+    public List<Film> findAll() {
+        return filmService.allFilm();
     }
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        return filmStorage.addFilm(film);
+        validation(film);
+        return filmService.addFilm(film);
     }
 
     @PutMapping
     public Film put(@Valid @RequestBody Film film) {
-        return filmStorage.updateFilm(film);
+        validation(film);
+        return filmService.updateFilm(film);
     }
 
     @GetMapping("/{id}")
@@ -56,15 +57,14 @@ public class FilmController {
     }
 
     @GetMapping("/popular") // Возвращает список из первых "count" фильмов по количеству лайков
-    public Collection<Film> findMoviesByLikes(
-            @RequestParam(defaultValue = COUNT_POPULAR_MOVIES, required = false) Integer count) {
-        if (count < 0) {
-            throw new IncorrectParameterException("count");
-        }
+    public List<Film> findMoviesByLikes(
+            @RequestParam(defaultValue = COUNT_POPULAR_MOVIES, required = false) @Positive Integer count) {
         return filmService.popularMovies(count);
     }
 
-
-
-
+    private void validation(Film film) {
+        if (film.getReleaseDate().isBefore(RELEASE_DATA) ) {
+            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
+        }
+    }
 }
