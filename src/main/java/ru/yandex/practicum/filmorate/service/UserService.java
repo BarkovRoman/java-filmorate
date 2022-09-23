@@ -63,7 +63,8 @@ public class UserService {
         User user = getUserById(userId);
         User friendsUser = getUserById(otherId);
 
-        return Stream.concat(user.getFriends().stream(), friendsUser.getFriends().stream())
+        return user.getFriends().stream()
+                .filter(f -> friendsUser.getFriends().contains(f))
                 .map(this::getUserById)
                 .collect(Collectors.toList());
     }
