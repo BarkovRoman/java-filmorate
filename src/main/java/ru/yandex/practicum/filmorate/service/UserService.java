@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -59,7 +58,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public List<User> mutualFriends(Integer userId, Integer otherId) {  // вывод списка общих друзей
+    public List <User> mutualFriends(Integer userId, Integer otherId) {  // вывод списка общих друзей
         User user = getUserById(userId);
         User friendsUser = getUserById(otherId);
 

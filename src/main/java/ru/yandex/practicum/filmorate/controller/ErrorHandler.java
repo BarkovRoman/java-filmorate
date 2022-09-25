@@ -18,25 +18,25 @@ import javax.validation.ConstraintViolationException;
 public class ErrorHandler {
     @ExceptionHandler
     public ResponseEntity< String > handleIdFilm(final FilmNotFoundException e) {
-        log.error("Ошибка параметров Film");
+        log.info("Ошибка параметров Film");
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
     public ResponseEntity< String > handleValidation(final ValidationException e) {
-        log.error("Ошибка валидации");
+        log.info("Ошибка валидации");
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
     public ResponseEntity< String > handleIdUser(final UserNotFoundException e) {
-        log.error("Ошибка параметров User");
+        log.info("Ошибка параметров User");
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
     public ResponseEntity<String> handleIncorrectParameterException(final IncorrectParameterException e) {
-        log.error("Ошибка параметров запроса User");
+        log.info("Ошибка параметров запроса User");
         return new ResponseEntity<>(String.format("Ошибка с полем \"%s\".", e.getParameter()), HttpStatus.BAD_REQUEST);
     }
 
@@ -48,12 +48,13 @@ public class ErrorHandler {
 
     @ExceptionHandler
     public ResponseEntity<String> handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
-        log.error("Ошибка параметров валидации");
+        log.info("Ошибка параметров валидации");
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
-    public ResponseEntity< String > exc(ConstraintViolationException ex){
+    public ResponseEntity<String> exc(ConstraintViolationException ex){
+        log.info("Ошибка параметров валидации");
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }
