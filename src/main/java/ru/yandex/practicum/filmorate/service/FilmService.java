@@ -31,7 +31,7 @@ public class FilmService {
     public Film addLike(Integer filmId, Integer userId) {
         Film film = getFilmById(filmId);
 
-        if (userService.getUserById(userId) == null || userId < 0) {
+        if (userService.getUserById(userId).isEmpty() || userId < 0) {
             throw new UserNotFoundException(String.format("Пользователь № %d не найден", userId));
         }
 
@@ -42,7 +42,7 @@ public class FilmService {
     public Film deleteLike(Integer filmId, Integer userId) {
         Film film = getFilmById(filmId);
 
-        if (userService.getUserById(userId) == null || userId < 0) {
+        if (userService.getUserById(userId).isEmpty() || userId < 0) {
             throw new UserNotFoundException(String.format("Пользователь № %d не найден", userId));
         }
 

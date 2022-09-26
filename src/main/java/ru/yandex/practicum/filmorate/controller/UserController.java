@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Validated
@@ -37,22 +38,22 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Integer id) {
+    public Optional<User> getUserById(@PathVariable Integer id) {
         return userService.getUserById(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")  // Добавление в друзья
-    public User addFriends(@PathVariable("id") Integer userId, @PathVariable Integer friendId) {
+    public Optional<User> addFriends(@PathVariable("id") Integer userId, @PathVariable Integer friendId) {
         return userService.addFriends(userId, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")  // Удаление из друзей
-    public User deleteFriends(@PathVariable("id") Integer userId, @PathVariable Integer friendId) {
-        return userService.deleteFriends(userId, friendId);
+    public void deleteFriends(@PathVariable("id") Integer userId, @PathVariable Integer friendId) {
+        userService.deleteFriends(userId, friendId);
     }
 
     @GetMapping("/{id}/friends")  // Возвращаем список пользователей, являющихся его друзьями
-    public List<User> friends(@PathVariable Integer id) {
+    public List<Optional<User>> friends(@PathVariable Integer id) {
         return userService.allFriends(id);
     }
 
