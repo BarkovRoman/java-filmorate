@@ -31,33 +31,39 @@ public class FilmController {
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
         validation(film);
+        log.info("Создан фильм {}", film);
         return filmService.addFilm(film);
     }
 
     @PutMapping
     public Film put(@Valid @RequestBody Film film) {
         validation(film);
+        log.info("Обновление фильма {}", film);
         return filmService.updateFilm(film);
     }
 
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable Integer id) {
+        log.info("GET /films/{}", id);
         return filmService.getFilmById(id);
     }
 
     @PutMapping("/{id}/like/{userId}")  // Пользователь ставит лайк фильму
     public Film addLike(@PathVariable("id") Integer filmId, @PathVariable Integer userId) {
+        log.info("Пользователь ID {} поставил лайк фильму ID {}",userId, filmId);
         return filmService.addLike(filmId, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")  // Пользователь удаляет лайк
     public Film deleteLike(@PathVariable("id") Integer filmId, @PathVariable Integer userId) {
+        log.info("Пользователь ID {} удалил лайк фильму ID {}",userId, filmId);
         return filmService.deleteLike(filmId, userId);
     }
 
     @GetMapping("/popular") // Возвращает список из первых "count" фильмов по количеству лайков
     public List<Film> findMoviesByLikes(
             @RequestParam(defaultValue = COUNT_POPULAR_MOVIES, required = false) @Positive Integer count) {
+        log.info("Вывод списока из первых {} фильмов",count);
         return filmService.popularMovies(count);
     }
 
