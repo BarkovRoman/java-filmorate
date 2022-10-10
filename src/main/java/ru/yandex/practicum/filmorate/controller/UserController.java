@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Validated
@@ -25,14 +26,14 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@Valid @RequestBody User user) {
+    public Optional<User> create(@Valid @RequestBody User user) {
         validation(user);
         log.info("Создан пользователь {}", user);
         return userService.addUser(user);
     }
 
     @PutMapping
-    public User put(@Valid @RequestBody User user) {
+    public Optional<User> put(@Valid @RequestBody User user) {
         validation(user);
         log.info("Обновление данных пользователя {}", user);
         return userService.updateUser(user);

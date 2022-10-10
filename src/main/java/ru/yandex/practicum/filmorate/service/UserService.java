@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,11 +21,11 @@ public class UserService {
         return userStorage.allUser();
     }
 
-    public User addUser(User user) {
+    public Optional<User> addUser(User user) {
         return userStorage.addUser(user);
     }
 
-    public User updateUser(User user) {
+    public Optional<User> updateUser(User user) {
         return userStorage.updateUser(user);
     }
 
