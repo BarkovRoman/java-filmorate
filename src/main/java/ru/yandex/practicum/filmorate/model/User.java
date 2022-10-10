@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,6 +29,21 @@ public class User {
     @NotNull(message = "Birthday = null")
     @PastOrPresent(message = "Birthday из будущего")
     private LocalDate birthday;
+
+//    public User(int id, String email, String login, String name, LocalDate birthday) {
+//        this.id = id;
+//        this.email = email;
+//        this.login = login;
+//        this.name = name;
+//        this.birthday = birthday;
+//    }
+
+//    public User(String email, String login, String name, LocalDate birthday) {
+//        this.email = email;
+//        this.login = login;
+//        this.name = name;
+//        this.birthday = birthday;
+//    }
 
     public void addFriends(Integer id) {
         friends.add(id);

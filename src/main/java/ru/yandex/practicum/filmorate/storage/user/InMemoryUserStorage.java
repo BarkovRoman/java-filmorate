@@ -8,10 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Repository
-public class InMemoryUserStorage implements UserStorage {
+//@Repository
+public class InMemoryUserStorage /*implements UserStorage*/ {
     private final Map<Integer, User> users = new HashMap<>();
-    private int userIid = 0;
+   /* private int userIid = 0;
 
     @Override
     public List<User> allUser() {
@@ -36,5 +36,5 @@ public class InMemoryUserStorage implements UserStorage {
         } else {
             throw new UserNotFoundException(String.format("Пользователь № %d не найден", id ));
         }
-    }
+    }*/
 }
