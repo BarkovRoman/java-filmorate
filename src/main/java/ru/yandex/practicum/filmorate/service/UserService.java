@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -41,24 +40,30 @@ public class UserService {
     }
 
     public Optional<User> deleteFriends(Integer userId, Integer friendId) {
-        Optional<User> user = getUserById(userId);
+        return userStorage.deleteFriends(userId, friendId);
+        /*Optional<User> user = getUserById(userId);
        Optional<User> friendsUser = getUserById(friendId);
 
-        //user.removeFriends(friendsUser.getId());
-        //friendsUser.removeFriends(user.getId());
-        return user;
+       user.removeFriends(friendsUser.getId());
+        friendsUser.removeFriends(user.getId());
+        return user;*/
     }
 
-    public List<User> allFriends(Integer userId) {
-        Optional<User> user = getUserById(userId);
-        return  null;//user.getFriends().stream().map(this::getUserById).collect(Collectors.toList());
+    public List<Optional<User>> allFriends(Integer userId) {
+        /*Optional<User> user = getUserById(userId);
+        return  user.getFriends().stream().map(this::getUserById).collect(Collectors.toList());*/
+        return userStorage.allFriends(userId);
     }
 
-    public List<User> mutualFriends(Integer userId, Integer otherId) {  // вывод списка общих друзей
-        Optional<User> user = getUserById(userId);
+    public List<Optional<User>> mutualFriends(Integer userId, Integer otherId) {  // вывод списка общих друзей
+        return userStorage.mutualFriends(userId, otherId);
+
+
+
+        /*Optional<User> user = getUserById(userId);
         Optional<User> friendsUser = getUserById(otherId);
 
-        return null; /*user.getFriends().stream()
+        return null; user.getFriends().stream()
                 .filter(f -> friendsUser.getFriends().contains(f))
                 .map(this::getUserById)
                 .collect(Collectors.toList());*/

@@ -56,8 +56,8 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<String> handleKey(KeyException e) {
+    public ResponseEntity<String> handleDataBaseException(DataBaseException e) {
         log.error("Ошибка сервера 500 {}", e.getMessage());
-        return new ResponseEntity<>("Произошла непредвиденная ошибка сервера", HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

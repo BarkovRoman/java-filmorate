@@ -58,13 +58,13 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")  // Возвращаем список пользователей, являющихся его друзьями
-    public List<User> friends(@PathVariable Integer id) {
+    public List<Optional<User>> friends(@PathVariable Integer id) {
         log.info("Просмотр списка друзей пользователя ID {}", id);
         return userService.allFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}") // список друзей, общих с другим пользователем
-    public List<User> mutualFriends(@PathVariable("id") Integer userId, @PathVariable Integer otherId) {
+    public List<Optional<User>> mutualFriends(@PathVariable("id") Integer userId, @PathVariable Integer otherId) {
         log.info("Просмотр списка общих друзей пользователя ID {} и ID {}", userId, otherId);
         return userService.mutualFriends(userId, otherId);
     }
