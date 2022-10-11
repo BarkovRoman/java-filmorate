@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -12,6 +13,9 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -24,12 +28,38 @@ public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public List<User> allUser() {
-        String sql = "select * from USERS";
-        //return jdbcTemplate.query(sql, (rs, rowNum) -> makePost(user, rs), user.getId());
+    public List<Optional<User>> allUser() {
+        String sql = "SELECT* FROM USERS";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs));
+    }
 
+    @Override
+    public Optional<User> getUserById(Integer id) {
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT* FROM USERS WHERE ID_USER = ?", id);
+        if(userRows.next()) {
+            User user = new User(
+                    id,
+                    userRows.getString("EMAIL"),
+            userRows.getString("LOGIN"),
+            userRows.getString("NAME_USER"),
+            Objects.requireNonNull(userRows.getDate("BIRTHDAY")).toLocalDate());
+            log.info("Найден пользователь: {}}", user);
+            return Optional.of(user);
+        } else {
+            log.info("Пользователь с идентификатором {} не найден.", id);
+            return Optional.empty();
+        }
+    }
 
-        return null;
+    private Optional<User> makeUser(ResultSet rs) throws SQLException {
+        int id = rs.getInt("ID_USER");
+        String email = rs.getString("EMAIL");
+        String login = rs.getString("LOGIN");
+        String name = rs.getString("NAME_USER");
+        LocalDate birthday = rs.getDate("BIRTHDAY").toLocalDate();
+        User user = new User(id, email, login, name, birthday);
+        log.info("Найден пользователь: {} ", user);
+        return Optional.of(user);
     }
 
     @Override
@@ -53,8 +83,8 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Optional<User> updateUser(User user) {
         int id = user.getId();
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT* FROM USERS WHERE ID_USER = ?", id);
-        if (userRows.next()) {
+        if (getUserById(id).isEmpty()) {
+
             String sqlQuery = "UPDATE USERS SET NAME_USER = ?, LOGIN = ?, EMAIL = ?, BIRTHDAY = ? WHERE ID_USER = ?";
             jdbcTemplate.update(sqlQuery
                     , user.getName()

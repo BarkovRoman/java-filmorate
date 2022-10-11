@@ -21,7 +21,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<User> findAll() {
+    public List<Optional<User>> findAll() {
         return userService.allUser();
     }
 
@@ -40,19 +40,19 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Integer id) {
-        log.info("GET /films/{}", id);
+    public Optional<User> getUserById(@PathVariable Integer id) {
+        log.info("GET /users/{}", id);
         return userService.getUserById(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")  // Добавление в друзья
-    public User addFriends(@PathVariable("id") Integer userId, @PathVariable Integer friendId) {
+    public Optional<User> addFriends(@PathVariable("id") Integer userId, @PathVariable Integer friendId) {
         log.info("Пользователь ID {} добавил в друзья пользователя ID {}",userId, friendId);
         return userService.addFriends(userId, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")  // Удаление из друзей
-    public User deleteFriends(@PathVariable("id") Integer userId, @PathVariable Integer friendId) {
+    public Optional<User> deleteFriends(@PathVariable("id") Integer userId, @PathVariable Integer friendId) {
         log.info("Пользователь ID {} удалил из друзей пользователя ID {}",userId, friendId);
         return userService.deleteFriends(userId, friendId);
     }
