@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -33,6 +32,18 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs));
     }
 
+    private Optional<User> makeUser(ResultSet rs) throws SQLException {
+        int id = rs.getInt("ID_USER");
+        String email = rs.getString("EMAIL");
+        String login = rs.getString("LOGIN");
+        String name = rs.getString("NAME_USER");
+        LocalDate birthday = rs.getDate("BIRTHDAY").toLocalDate();
+        User user = new User(id, email, login, name, birthday);
+        friendsOfUser(user);
+        log.info("Найден пользователь: {} ", user);
+        return Optional.of(user);
+    }
+
     @Override
     public Optional<User> getUserById(Integer id) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT* FROM USERS WHERE ID_USER = ?", id);
@@ -43,6 +54,8 @@ public class UserDbStorage implements UserStorage {
                     userRows.getString("LOGIN"),
                     userRows.getString("NAME_USER"),
                     Objects.requireNonNull(userRows.getDate("BIRTHDAY")).toLocalDate());
+            friendsOfUser(user);
+
             log.info("Найден пользователь: {}}", user);
             return Optional.of(user);
         } else {
@@ -51,16 +64,11 @@ public class UserDbStorage implements UserStorage {
         }
     }
 
-    private Optional<User> makeUser(ResultSet rs) throws SQLException {
-        int id = rs.getInt("ID_USER");
-        String email = rs.getString("EMAIL");
-        String login = rs.getString("LOGIN");
-        String name = rs.getString("NAME_USER");
-        LocalDate birthday = rs.getDate("BIRTHDAY").toLocalDate();
-        User user = new User(id, email, login, name, birthday);
-
-        log.info("Найден пользователь: {} ", user);
-        return Optional.of(user);
+    private void friendsOfUser(User user) {
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT OTHER_ID FROM FRIENDS WHERE USER_ID = ?", user.getId());
+        if (userRows.next()) {
+            user.addFriends(userRows.getInt("OTHER_ID"));
+        }
     }
 
     @Override
@@ -110,18 +118,19 @@ public class UserDbStorage implements UserStorage {
                         .format("Пользователь с идентификатором %d в БД не найден.", userId)));
 
         user.addFriends(friendId);
+        String status = "Не подтвержденна";
 
-        if (!user.getFriends().contains(friendId)) {
-            String sqlQuery = "INSERT INTO FRIENDS (USER_ID, OTHER_ID) VALUES(?, ?)";
-            jdbcTemplate.update(sqlQuery, userId, friendId);
-            log.info("Пользователь ID {} добавил в друзья ID {}", userId, friendId);
+        if (other.getFriends().contains(userId)) {
+            status = "Подтвержденна";
+            String sqlQuery = "UPDATE FRIENDS SET STATUS = ? WHERE USER_ID = ? AND OTHER_ID = ?";
+            jdbcTemplate.update(sqlQuery, status, friendId, userId);
+            log.info("Обновление статуса дружбы у пользователей ID {} / ID {}", userId, friendId);
         }
 
-        if (!other.getFriends().contains(userId)) {
-            String status = "Подтвержденна";
-            String sqlQuery = "UPDATE FRIENDS SET STATUS = ? WHERE ID_USER = ? AND OTHER_ID = ?";
-            jdbcTemplate.update(sqlQuery,status, friendId, userId);
-            log.info("Обновление статуса дружбы у пользователей ID {} / ID {}", userId, friendId);
+        if (user.getFriends().contains(friendId)) {
+            String sqlQuery = "INSERT INTO FRIENDS (USER_ID, OTHER_ID, STATUS) VALUES(?, ?, ?)";
+            jdbcTemplate.update(sqlQuery, userId, friendId, status);
+            log.info("Пользователь ID {} добавил в друзья ID {}", userId, friendId);
         }
 
         return Optional.of(user);
