@@ -15,9 +15,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -46,7 +48,10 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Optional<User> getUserById(Integer id) {
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT* FROM USERS WHERE ID_USER = ?", id);
+        String sql = "SELECT* FROM USERS WHERE ID_USER = ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id).get(0);
+
+        /*SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT* FROM USERS WHERE ID_USER = ?", id);
         if (userRows.next()) {
             User user = new User(
                     id,
@@ -61,14 +66,20 @@ public class UserDbStorage implements UserStorage {
         } else {
             log.info("Пользователь с идентификатором {} не найден.", id);
             throw new UserNotFoundException(String.format("Пользователь № %d не найден", id));
-        }
+        }*/
     }
 
     private void friendsOfUser(User user) {
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT OTHER_ID FROM FRIENDS WHERE USER_ID = ?", user.getId());
+        /*SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT OTHER_ID FROM FRIENDS WHERE USER_ID = ?", user.getId());
         if (userRows.next()) {
             user.addFriends(userRows.getInt("OTHER_ID"));
-        }
+        }*/
+        String sql = "SELECT OTHER_ID FROM FRIENDS WHERE USER_ID = ?";
+        user.addFriends(jdbcTemplate.query(sql, (rs, rowNum) -> makeFriends(rs), user.getId()).stream().);
+    }
+
+    private Integer makeFriends(ResultSet rs) throws SQLException {
+        return rs.getInt("OTHER_ID");
     }
 
     @Override
