@@ -36,18 +36,18 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Optional<User> getUserById(Integer id) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT* FROM USERS WHERE ID_USER = ?", id);
-        if(userRows.next()) {
+        if (userRows.next()) {
             User user = new User(
                     id,
                     userRows.getString("EMAIL"),
-            userRows.getString("LOGIN"),
-            userRows.getString("NAME_USER"),
-            Objects.requireNonNull(userRows.getDate("BIRTHDAY")).toLocalDate());
+                    userRows.getString("LOGIN"),
+                    userRows.getString("NAME_USER"),
+                    Objects.requireNonNull(userRows.getDate("BIRTHDAY")).toLocalDate());
             log.info("Найден пользователь: {}}", user);
             return Optional.of(user);
         } else {
             log.info("Пользователь с идентификатором {} не найден.", id);
-            return Optional.empty();
+            throw new UserNotFoundException(String.format("Пользователь № %d не найден", id));
         }
     }
 
@@ -58,6 +58,7 @@ public class UserDbStorage implements UserStorage {
         String name = rs.getString("NAME_USER");
         LocalDate birthday = rs.getDate("BIRTHDAY").toLocalDate();
         User user = new User(id, email, login, name, birthday);
+
         log.info("Найден пользователь: {} ", user);
         return Optional.of(user);
     }
@@ -84,19 +85,45 @@ public class UserDbStorage implements UserStorage {
     public Optional<User> updateUser(User user) {
         int id = user.getId();
         if (getUserById(id).isEmpty()) {
-
-            String sqlQuery = "UPDATE USERS SET NAME_USER = ?, LOGIN = ?, EMAIL = ?, BIRTHDAY = ? WHERE ID_USER = ?";
-            jdbcTemplate.update(sqlQuery
-                    , user.getName()
-                    , user.getLogin()
-                    , user.getEmail()
-                    , user.getBirthday()
-                    , id);
-            log.info("Обновление данных пользователя в БД {}", user);
-            return Optional.of(user);
-        } else {
             log.info("Пользователь с идентификатором {} в БД не найден.", id);
             throw new UserNotFoundException(String.format("Пользователь с идентификатором %d в БД не найден.", id));
         }
+        String sqlQuery = "UPDATE USERS SET NAME_USER = ?, LOGIN = ?, EMAIL = ?, BIRTHDAY = ? WHERE ID_USER = ?";
+        jdbcTemplate.update(sqlQuery
+                , user.getName()
+                , user.getLogin()
+                , user.getEmail()
+                , user.getBirthday()
+                , id);
+        log.info("Обновление данных пользователя в БД {}", user);
+        return Optional.of(user);
+    }
+
+    @Override
+    public Optional<User> addFriends(Integer userId, Integer friendId) {
+        User user = getUserById(userId)
+                .orElseThrow(() -> new UserNotFoundException(String
+                        .format("Пользователь с идентификатором %d в БД не найден.", userId)));
+
+        User other = getUserById(userId)
+                .orElseThrow(() -> new UserNotFoundException(String
+                        .format("Пользователь с идентификатором %d в БД не найден.", userId)));
+
+        user.addFriends(friendId);
+
+        if (!user.getFriends().contains(friendId)) {
+            String sqlQuery = "INSERT INTO FRIENDS (USER_ID, OTHER_ID) VALUES(?, ?)";
+            jdbcTemplate.update(sqlQuery, userId, friendId);
+            log.info("Пользователь ID {} добавил в друзья ID {}", userId, friendId);
+        }
+
+        if (!other.getFriends().contains(userId)) {
+            String status = "Подтвержденна";
+            String sqlQuery = "UPDATE FRIENDS SET STATUS = ? WHERE ID_USER = ? AND OTHER_ID = ?";
+            jdbcTemplate.update(sqlQuery,status, friendId, userId);
+            log.info("Обновление статуса дружбы у пользователей ID {} / ID {}", userId, friendId);
+        }
+
+        return Optional.of(user);
     }
 }

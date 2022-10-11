@@ -20,18 +20,15 @@ public class UserService {
     }
 
     public Optional<User> addUser(User user) {
-        return Optional.of(userStorage.addUser(user)
-                .orElseThrow(() -> new UserNotFoundException("Ошибка добавления пользователя")));
+        return userStorage.addUser(user);
     }
 
     public Optional<User> updateUser(User user) {
-        return Optional.of(userStorage.updateUser(user)
-                .orElseThrow(() -> new UserNotFoundException("Ошибка обновления пользователя")));
+        return userStorage.updateUser(user);
     }
 
     public Optional<User> getUserById(Integer id) {
-        return Optional.ofNullable(userStorage.getUserById(id)
-                .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь № %d не найден", id))));
+        return userStorage.getUserById(id);
 
         /*return userStorage.allUser().stream()
                 .filter(f -> f.getId() == id)
@@ -40,13 +37,7 @@ public class UserService {
     }
 
     public Optional<User> addFriends(Integer userId, Integer friendId) {
-        Optional<User> user = getUserById(userId);
-        Optional<User> friendsUser = getUserById(friendId);
-
-        //user.addFriends(friendId);
-        //friendsUser.addFriends(userId);
-
-        return user;
+        return userStorage.addFriends(userId, friendId);
     }
 
     public Optional<User> deleteFriends(Integer userId, Integer friendId) {
