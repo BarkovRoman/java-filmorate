@@ -7,6 +7,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class InMemoryFilmStorage implements FilmStorage {
@@ -14,23 +16,23 @@ public class InMemoryFilmStorage implements FilmStorage {
     private int filmId = 0;
 
     @Override
-    public List<Film> allFilm() {
-        return List.copyOf(films.values());
+    public List <Optional<Film>> allFilm() {
+        return films.values().stream().map(Optional::of).collect(Collectors.toList());
     }
     @Override
-    public Film addFilm(Film film) {
+    public Optional<Film> addFilm(Film film) {
         filmId++;
         film.setId(filmId);
         films.put(filmId, film);
-        return film;
+        return Optional.of(film);
     }
     @Override
-    public Film updateFilm(Film film) {
+    public Optional<Film> updateFilm(Film film) {
         int id = film.getId();
 
         if (films.containsKey(id)) {
             films.put(id, film);
-            return film;
+            return Optional.of(film);
         } else {
             throw new FilmNotFoundException(String.format("Фильм № %d не найден", id ));
         }

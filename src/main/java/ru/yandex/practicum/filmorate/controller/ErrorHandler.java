@@ -57,7 +57,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     public ResponseEntity<String> handleDataBaseException(DataBaseException e) {
-        log.error("Ошибка сервера 500 {}", e.getMessage());
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        log.error("Ошибка БД 404 {}", e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 }

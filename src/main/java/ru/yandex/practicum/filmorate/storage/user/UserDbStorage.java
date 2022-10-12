@@ -2,11 +2,11 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.DataBaseException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
@@ -17,7 +17,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -25,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
+@Qualifier("UserDbStorage")
 @RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
 
@@ -33,10 +33,11 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Optional<User> getUserById(Integer id) {
         String sql = "SELECT* FROM USERS WHERE ID_USER = ?";
+        //String sql = "SELECT* FROM USERS u INNER JOIN FRIENDS f ON u.ID_USER = f.USER_ID WHERE ID_USER = ?";
         try {
             return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id).get(0);
         } catch (DataAccessException e) {
-            throw new DataBaseException("Ошибка получения Friends из базы данных");
+            throw new DataBaseException("Ошибка получения User из базы данных");
         }
     }
 
@@ -57,8 +58,8 @@ public class UserDbStorage implements UserStorage {
             friendsOfUser(user);
             log.info("Найден пользователь: {} ", user);
             return Optional.of(user);
-        } catch (SQLException e) {
-            throw new UserNotFoundException("Ошибка получения User из базы данных");
+        } catch (DataAccessException | SQLException e) {
+            throw new DataBaseException("Ошибка получения User из базы данных");
         }
     }
 
@@ -128,7 +129,8 @@ public class UserDbStorage implements UserStorage {
 
         return Optional.of(user);
     }
-@Override
+
+    @Override
     public Optional<User> deleteFriends(Integer userId, Integer friendId) {
         User user = getUserById(userId)
                 .orElseThrow(() -> new UserNotFoundException(String
@@ -146,7 +148,7 @@ public class UserDbStorage implements UserStorage {
         return Optional.of(user);
     }
 
-@Override
+    @Override
     public List<Optional<User>> allFriends(Integer userId) {
         String sql = "SELECT OTHER_ID FROM FRIENDS WHERE USER_ID = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFriends(rs), userId).stream()
@@ -156,8 +158,9 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<Optional<User>> mutualFriends(Integer userId, Integer otherId) {
-        String sql = "SELECT OTHER_ID FROM FRIENDS WHERE USER_ID = ? AND USER_ID =";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFriends(rs), userId).stream()
+        String sql = "SELECT OTHER_ID FROM FRIENDS WHERE USER_ID IN (?, ?)" +
+                "GROUP BY OTHER_ID HAVING COUNT(OTHER_ID) > 1";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFriends(rs), userId, otherId).stream()
                 .map(this::getUserById)
                 .collect(Collectors.toList());
     }
