@@ -90,17 +90,16 @@ public class UserDbStorage implements UserStorage {
         }, keyHolder);
 
         user.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
-        log.info("Пользователь {} добавлен в БД с ID {}", user, user.getId());
+        log.info("Пользователь {} добавлен в БД", user);
         return Optional.of(user);
     }
 
     @Override
     public Optional<User> updateUser(User user) {
         int id = user.getId();
-        if (getUserById(id).isEmpty()) {
-            log.info("Пользователь с идентификатором {} в БД не найден.", id);
-            throw new UserNotFoundException(String.format("Пользователь с идентификатором %d в БД не найден.", id));
-        }
+        getUserById(id)
+                .orElseThrow(() -> new UserNotFoundException(String
+                        .format("Пользователь с идентификатором %d в БД не найден.", id)));
         String sqlQuery = "UPDATE USERS SET NAME_USER = ?, LOGIN = ?, EMAIL = ?, BIRTHDAY = ? WHERE ID_USER = ?";
         jdbcTemplate.update(sqlQuery
                 , user.getName()

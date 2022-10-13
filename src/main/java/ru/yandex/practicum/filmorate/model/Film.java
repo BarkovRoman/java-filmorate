@@ -30,7 +30,7 @@ public class Film {
     @Positive(message = "duration = null")
     private int duration;
 
-    private int mpa;
+    private final Mpa mpa;
 
     public void addLike(Integer id) {
         like.add(id);

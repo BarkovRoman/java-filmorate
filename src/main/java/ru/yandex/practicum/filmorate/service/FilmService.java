@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final UserService userService;
 
     public List<Optional<Film>> allFilm() {
         return filmStorage.allFilm();
