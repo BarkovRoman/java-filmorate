@@ -20,6 +20,7 @@ import javax.validation.constraints.Size;
 public class Film {
     private int id;
     private final Set<Integer> like = new HashSet<>();
+    private final Set<Genre> genres = new HashSet<>();
 
     @NotBlank(message = "Name = NotBlank")
     private String name;
@@ -33,12 +34,18 @@ public class Film {
     @Positive(message = "duration = null")
     private int duration;
 
+    @NotNull(message = "mpa = null")
     private Mpa mpa;
 
     public void addLike(Integer id) {
         like.add(id);
     }
+
     public void removeLike(Integer id) {
         like.remove(id);
+    }
+
+    public void addGenre(Genre ganre) {
+        genres.add(ganre);
     }
 }

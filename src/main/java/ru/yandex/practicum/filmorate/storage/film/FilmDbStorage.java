@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.DataBaseException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -22,7 +23,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -34,18 +34,25 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<Film> getFilmById(Integer id) {
-        String sql = "SELECT* FROM FILMS WHERE ID_FILMS = ?";
-        //String sql = "SELECT* FROM FILMS INNER JOIN MPA M on M.ID_MPA = FILMS.MPA WHERE ID_FILMS = ?";
+        //String sql = "SELECT* FROM FILMS WHERE ID_FILMS = ?";
+        String sql = "SELECT* FROM FILMS f " +
+                "LEFT JOIN MPA M on M.ID_MPA = f.MPA " +
+                "LEFT JOIN FILM_GENRES fg ON f.ID_FILMS = fg.FILM_ID " +
+                "LEFT JOIN GENRES g ON fg.GENRE_ID  = g.ID_GENRES  WHERE ID_FILMS = ?";
         try {
             return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), id).get(0);
         } catch (DataAccessException e) {
             throw new DataBaseException("Ошибка получения Film по ID из базы данных");
         }
     }
+
     @Override
     public List<Optional<Film>> allFilm() {
-        String sql = "SELECT* FROM FILMS";
-        //String sql = "SELECT* FROM FILMS INNER JOIN MPA M on M.ID_MPA = FILMS.MPA";
+        //String sql = "SELECT* FROM FILMS";
+        String sql = "SELECT* FROM FILMS f \n" +
+                "LEFT JOIN MPA M on M.ID_MPA = f.MPA \n" +
+                "LEFT JOIN FILM_GENRES fg ON f.ID_FILMS = fg.FILM_ID \n" +
+                "LEFT JOIN GENRES g ON fg.GENRE_ID  = g.ID_GENRES ";
         try {
             return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs));
         } catch (DataAccessException e) {
@@ -61,13 +68,16 @@ public class FilmDbStorage implements FilmStorage {
             LocalDate releaseDate = rs.getDate("RELEASE_DATE").toLocalDate();
             int duration = rs.getInt("DURATION");
             int idMpa = rs.getInt("MPA");
-            //String nameMpa = rs.getString("NAME_MPA");
+            String nameMpa = rs.getString("NAME_MPA");
+            int idGenre = rs.getInt("ID_GENRES");
+            String nameGenre = rs.getString("NAME_GENRES");
 
-            Film film = new Film(id, name, description, releaseDate, duration, new Mpa(idMpa));
+            Film film = new Film(id, name, description, releaseDate, duration, new Mpa(idMpa, nameMpa));
+            film.addGenre(new Genre(idGenre, nameGenre));
 
             log.info("Найден фильм в БД: {} ", film);
             likeOfFilm(film);
-            //log.info("Like заполненны: {} ", film.getLike());
+            log.info("Like заполненны: {} ", film.getLike());
             return Optional.of(film);
         } catch (SQLException e) {
             throw new DataBaseException("Ошибка получения Film из базы данных");
@@ -75,12 +85,9 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void likeOfFilm(Film film) {
-        String sql = "SELECT USER_ID FROM 'LIKE' WHERE FILM_ID = ?";
+        String sql = "SELECT USER_ID FROM LIKES WHERE FILM_ID = ?";
         try {
-
             jdbcTemplate.query(sql, (rs, rowNum) -> makeLike(rs), film.getId()).forEach(film::addLike);
-
-
         } catch (DataAccessException e) {
             throw new DataBaseException("Ошибка получения списка Like из базы данных");
         }
@@ -101,7 +108,7 @@ public class FilmDbStorage implements FilmStorage {
 
         film.ifPresent(film1 -> film1.addLike(userId));
 
-        String sqlQuery = "INSERT INTO 'LIKE' (FILM_ID, USER_ID) VALUES(?, ?)";
+        String sqlQuery = "INSERT INTO LIKES (FILM_ID, USER_ID) VALUES(?, ?)";
         try {
             jdbcTemplate.update(sqlQuery, filmId, userId);
         } catch (DataAccessException e) {
@@ -119,7 +126,7 @@ public class FilmDbStorage implements FilmStorage {
 
         film.ifPresent(film1 -> film1.removeLike(userId));
 
-        String sqlQuery = "DELETE FROM 'LIKE' WHERE FILM_ID = ? AND USER_ID = ?";
+        String sqlQuery = "DELETE FROM LIKES WHERE FILM_ID = ? AND USER_ID = ?";
         try {
             jdbcTemplate.update(sqlQuery, filmId, userId);
         } catch (DataAccessException e) {
@@ -132,11 +139,10 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Optional<Film>> popularMovies(Integer count) {
-        String sql = "SELECT FILM_ID FROM 'LIKE' GROUP BY FILM_ID ORDER BY COUNT(USER_ID) DESC LIMIT ?";
+        String sql =
+                "SELECT* FROM FILMS f LEFT JOIN LIKES l ON f.ID_FILMS = l.FILM_ID GROUP BY f.ID_FILMS ORDER BY COUNT(l.USER_ID) DESC LIMIT ?";
         try {
-            return jdbcTemplate.query(sql, (rs, rowNum) -> makeLike(rs), count).stream()
-                    .map(this::getFilmById)
-                    .collect(Collectors.toList());
+            return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
         } catch (DataAccessException e) {
             throw new DataBaseException("Ошибка получения списка Film -> Like из БД");
         }
@@ -144,24 +150,28 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<Film> addFilm(Film film) {
-        String sqlQuery = "INSERT INTO FILMS (NAME_FILMS, DESCRIPTION, RELEASE_DATE, DURATION, MPA) VALUES( ?, ?, ?, ?, ?)";
+        String sqlQueryFilm = "INSERT INTO FILMS (NAME_FILMS, DESCRIPTION, RELEASE_DATE, DURATION, MPA) VALUES( ?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        try {
-            jdbcTemplate.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(sqlQuery, new String[]{"ID_FILMS"});
-                ps.setString(1, film.getName());
-                ps.setString(2, film.getDescription());
-                ps.setDate(3, Date.valueOf(film.getReleaseDate()));
-                ps.setInt(4, film.getDuration());
-                ps.setInt(5, film.getMpa().getId());
-                return ps;
-            }, keyHolder);
+         try {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sqlQueryFilm, new String[]{"ID_FILMS"});
+            ps.setString(1, film.getName());
+            ps.setString(2, film.getDescription());
+            ps.setDate(3, Date.valueOf(film.getReleaseDate()));
+            ps.setInt(4, film.getDuration());
+            ps.setInt(5, film.getMpa().getId());
+            return ps;
+        }, keyHolder);
+
         } catch (DataAccessException e) {
             throw new DataBaseException("Ошибка добавления Film в БД");
-        }
+          }
 
         film.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         log.info("Фильм {} добавлен в БД", film);
+        if (film.getGenres().size() != 0) {
+            addGenre(film);
+        }
         return Optional.of(film);
     }
 
@@ -183,7 +193,32 @@ public class FilmDbStorage implements FilmStorage {
         } catch (DataAccessException e) {
             throw new DataBaseException("Ошибка обновления Film в БД");
         }
+        addGenre(film);
         log.info("Обновление данных фильма в БД {}", film);
         return Optional.of(film);
+    }
+
+    private void addGenre(Film film) {
+
+        String sqlQuery = "DELETE FROM FILM_GENRES WHERE FILM_ID = ?";
+        try {
+            jdbcTemplate.update(sqlQuery, film.getId());
+        } catch (DataAccessException e) {
+            throw new DataBaseException("Ошибка удаления Like из БД");
+        }
+
+        for (Genre genre : film.getGenres()) {
+            String sqlQueryGenre = "INSERT INTO FILM_GENRES(FILM_ID, GENRE_ID) VALUES (?, ?)";
+
+            try {
+                jdbcTemplate.update(sqlQueryGenre
+                        , film.getId()
+                        , genre.getId()
+                );
+            } catch (DataAccessException e) {
+                throw new DataBaseException("Ошибка обновления жанра Film в БД");
+            }
+        }
+        log.info("Обновление жанра фильма {}", film);
     }
 }
