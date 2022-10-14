@@ -211,7 +211,9 @@ public class FilmDbStorage implements FilmStorage {
         }
         addGenre(film);
         log.info("Обновление данных фильма в БД {}", film);
-        return Optional.of(film);
+        film.getGenres().clear();
+
+        return getFilmById(id);
     }
 
     private void addGenre(Film film) {
