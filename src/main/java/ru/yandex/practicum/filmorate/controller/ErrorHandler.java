@@ -60,4 +60,16 @@ public class ErrorHandler {
         log.error("Ошибка БД 404 {}", e.getMessage());
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleGenreNotFoundException(GenreNotFoundException e) {
+        log.error("Ошибка БД 404 {}", e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleMpaNotFoundException(MpaNotFoundException e) {
+        log.error("Ошибка БД 404 {}", e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
 }

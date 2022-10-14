@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -21,13 +21,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
 @Component
-@Qualifier("UserDbStorage")
+//@Qualifier("UserDbStorage")
+@Primary
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -98,7 +100,7 @@ public class FilmDbStorage implements FilmStorage {
     private void genreOfFilm(Film film) {
         String sql = "SELECT* FROM FILM_GENRES fg " +
         "LEFT JOIN GENRES g ON fg.GENRE_ID  = g.ID_GENRES "+
-        "WHERE fg.FILM_ID = ?";
+        "WHERE fg.FILM_ID = ? ORDER BY g.ID_GENRES ASC ";
         try {
             jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), film.getId()).forEach(film::addGenre);
         } catch (DataAccessException e) {
@@ -193,9 +195,8 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Optional<Film> updateFilm(Film film) {
         int id = film.getId();
-        getFilmById(id)
-                .orElseThrow(() -> new UserNotFoundException(String
-                        .format("Фильм с идентификатором %d в БД не найден.", id)));
+        getFilmById(id);
+
         String sqlQuery = "UPDATE FILMS SET NAME_FILMS = ?, DESCRIPTION = ?, RELEASE_DATE = ?, DURATION = ?, MPA = ? WHERE ID_FILMS = ?";
         try {
             jdbcTemplate.update(sqlQuery

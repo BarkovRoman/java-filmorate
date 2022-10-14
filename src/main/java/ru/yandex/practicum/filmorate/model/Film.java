@@ -1,8 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,7 +22,7 @@ import javax.validation.constraints.Size;
 public class Film {
     private int id;
     private final Set<Integer> like = new HashSet<>();
-    private final Set<Genre> genres = new HashSet<>();
+
 
     @NotBlank(message = "Name = NotBlank")
     private String name;
@@ -44,7 +46,7 @@ public class Film {
     public void removeLike(Integer id) {
         like.remove(id);
     }
-
+    private final Set<Genre> genres = new TreeSet<>(Comparator.comparingInt(Genre::getId));   //(Comparator.comparing(Genre::getId));
     public void addGenre(Genre ganre) {
         genres.add(ganre);
     }

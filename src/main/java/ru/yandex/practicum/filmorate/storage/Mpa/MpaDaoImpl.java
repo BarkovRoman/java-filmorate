@@ -1,13 +1,13 @@
-package ru.yandex.practicum.filmorate.dao.impl;
+package ru.yandex.practicum.filmorate.storage.Mpa;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dao.MpaDao;
+import ru.yandex.practicum.filmorate.storage.Mpa.MpaDao;
 import ru.yandex.practicum.filmorate.exception.DataBaseException;
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.MpaNotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
@@ -37,7 +37,7 @@ public class MpaDaoImpl implements MpaDao {
         } catch (DataAccessException e) {
             throw new DataBaseException("Ошибка получения Mpa из базы данных");
         } catch (Throwable e) {
-            throw new FilmNotFoundException(String.format("Mpa № %d в БД не найден!", id));
+            throw new MpaNotFoundException(String.format("Mpa № %d в БД не найден!", id));
         }
     }
 

@@ -1,13 +1,13 @@
-package ru.yandex.practicum.filmorate.dao.impl;
+package ru.yandex.practicum.filmorate.storage.Genre;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dao.GenreDao;
+import ru.yandex.practicum.filmorate.storage.Genre.GenreDao;
 import ru.yandex.practicum.filmorate.exception.DataBaseException;
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.ResultSet;
@@ -37,7 +37,7 @@ public class GenreDaoImpl implements GenreDao {
         } catch (DataAccessException e) {
             throw new DataBaseException("Ошибка получения GENRE из базы данных");
         } catch (Throwable e) {
-            throw new FilmNotFoundException(String.format("GENRE № %d в БД не найден!", id));
+            throw new GenreNotFoundException(String.format("GENRE № %d в БД не найден!", id));
         }
     }
 

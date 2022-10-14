@@ -1,7 +1,5 @@
-/*
 package ru.yandex.practicum.filmorate.storage.user;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -13,7 +11,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
-@Qualifier("InMemoryUserStorage")
+//@Qualifier("InMemoryUserStorage")
+
 public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Integer, User> users = new HashMap<>();
@@ -55,17 +54,17 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     public Optional<User> addFriends(Integer userId, Integer friendId) {
-        User user = getUserById(userId).get();
-        User friend = getUserById(friendId).get();
-        user.addFriends(friendId);
-        return Optional.of(user);
+        getUserById(friendId);
+        Optional<User> user = getUserById(userId);
+        user.ifPresent(user1 -> user1.addFriends(friendId));
+        return user;
     }
 
     public Optional<User> deleteFriends(Integer userId, Integer friendId) {
-        User user = getUserById(userId).get();
-        User friend = getUserById(friendId).get();
-        user.removeFriends(friendId);
-        return Optional.of(user);
+        getUserById(friendId);
+        Optional<User> user = getUserById(userId);
+        user.ifPresent(user1 -> user1.removeFriends(friendId));
+        return user;
     }
 
     public List<Optional<User>> allFriends(Integer userId) {
@@ -85,4 +84,3 @@ public class InMemoryUserStorage implements UserStorage {
                 .collect(Collectors.toList());
     }
 }
-*/

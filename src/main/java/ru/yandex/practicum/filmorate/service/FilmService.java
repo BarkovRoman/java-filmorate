@@ -27,43 +27,17 @@ public class FilmService {
 
     public Optional<Film> addLike(Integer filmId, Integer userId) {
         return filmStorage.addLike(filmId, userId);
-        /*Film film = getFilmById(filmId);
-        if (userService.getUserById(userId).isEmpty() || userId < 0) {
-            throw new UserNotFoundException(String.format("Пользователь № %d не найден", userId));
-        }
-        film.addLike(userId);
-        return film;*/
     }
 
     public Optional<Film> deleteLike(Integer filmId, Integer userId) {
         return filmStorage.deleteLike(filmId, userId);
-        /*Film film = getFilmById(filmId);
-
-        if (userService.getUserById(userId).isEmpty() || userId < 0) {
-            throw new UserNotFoundException(String.format("Пользователь № %d не найден", userId));
-        }
-
-        if (!film.getLike().contains(userId)) {
-            throw new UserNotFoundException(String.format("Пользователь № %d  Like Film № %d не ставил", userId, filmId));
-        }
-
-        film.removeLike(userId);
-        return film;*/
     }
 
     public List<Optional<Film>> popularMovies(Integer count) { // вывод 10 наиболее популярных фильмов по количеству лайков
         return filmStorage.popularMovies(count);
-        /*return filmStorage.allFilm().stream()
-                .sorted((o1, o2) -> o2.getLike().size() - o1.getLike().size())
-                .limit(count)
-                .collect(Collectors.toList());*/
     }
 
     public Optional<Film> getFilmById(Integer id) {
         return filmStorage.getFilmById(id);
-        /*return filmStorage.allFilm().stream()
-                .filter(f -> f.getId() == id)
-                .findFirst()
-                .orElseThrow(() -> new FilmNotFoundException(String.format("Пользователь № %d не найден", id)));*/
     }
 }
