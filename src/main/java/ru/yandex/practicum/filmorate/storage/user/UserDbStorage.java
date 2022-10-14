@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.DataBaseException;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.Date;
@@ -37,6 +38,8 @@ public class UserDbStorage implements UserStorage {
             return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id).get(0);
         } catch (DataAccessException e) {
             throw new DataBaseException("Ошибка получения User из базы данных");
+        } catch (Throwable e) {
+            throw new UserNotFoundException(String.format("User № %d в БД не найден!", id));
         }
     }
 
