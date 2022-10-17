@@ -9,8 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.Mpa.MpaDao;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.time.LocalDate;
@@ -28,11 +27,11 @@ public class FilmApplicationTest {
     private static final LocalDate BIRTHDAY = LocalDate.now().minusDays(2);
     private final FilmDbStorage filmDbStorage;
     private final UserDbStorage userDbStorage;
-    private final MpaDao mpaDao;
+    private final MpaStorage mpaStorage;
 
     @Test
     public void testFilmById() {
-        Mpa mpa = mpaDao.getMpaById(1).get();
+        Mpa mpa = mpaStorage.getMpaById(1).get();
         Film film1 = new Film(0, "filmCreate",
                 RandomString.make(200), RELEASE_DATA, 100, mpa);
 
@@ -47,7 +46,7 @@ public class FilmApplicationTest {
 
     @Test
     public void testAllFilm() {
-        Mpa mpa = mpaDao.getMpaById(1).get();
+        Mpa mpa = mpaStorage.getMpaById(1).get();
         Film film1 = new Film(0, "filmCreate",
                 RandomString.make(200), RELEASE_DATA, 100, mpa);
         filmDbStorage.addFilm(film1);
@@ -64,7 +63,7 @@ public class FilmApplicationTest {
     @Test
     public void testUpdateFilm() {
         filmDbStorage.updateFilm(new Film(1, "newFilmCreate",
-                RandomString.make(200), RELEASE_DATA, 100, mpaDao.getMpaById(1).get()));
+                RandomString.make(200), RELEASE_DATA, 100, mpaStorage.getMpaById(1).get()));
         Optional<Film> filmOptional = filmDbStorage.getFilmById(1);
         assertThat(filmOptional)
                 .isPresent()

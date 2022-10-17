@@ -47,6 +47,7 @@ public class Film {
         like.remove(id);
     }
     private final Set<Genre> genres = new TreeSet<>(Comparator.comparingInt(Genre::getId));   //(Comparator.comparing(Genre::getId));
+
     public void addGenre(Genre ganre) {
         genres.add(ganre);
     }
