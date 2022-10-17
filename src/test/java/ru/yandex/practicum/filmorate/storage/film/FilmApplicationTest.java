@@ -100,4 +100,15 @@ public class FilmApplicationTest {
                 );
     }
 
+    @Test
+    public void testDeleteLikeFilm() {
+        filmDbStorage.deleteLike(1,1);
+        Optional<Film> filmOptional = filmDbStorage.getFilmById(1);
+        assertThat(filmOptional)
+                .isPresent()
+                .hasValueSatisfying(film ->
+                        assertThat(film.getLike()).hasSize(0)
+                );
+    }
+
 }

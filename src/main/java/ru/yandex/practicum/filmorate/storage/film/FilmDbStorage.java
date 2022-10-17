@@ -209,7 +209,7 @@ public class FilmDbStorage implements FilmStorage {
         }
         addGenre(film);
         log.info("Обновление данных фильма в БД {}", film);
-        film.getGenres().clear();
+        //film.getGenres().clear();
 
         return getFilmById(id);
     }
