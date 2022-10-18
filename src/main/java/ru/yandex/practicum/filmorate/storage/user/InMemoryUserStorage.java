@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.HashMap;
@@ -11,7 +11,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
-//@Qualifier("InMemoryUserStorage")
 
 public class InMemoryUserStorage implements UserStorage {
 
@@ -41,7 +40,7 @@ public class InMemoryUserStorage implements UserStorage {
             users.put(id, user);
             return Optional.of(user);
         } else {
-            throw new UserNotFoundException(String.format("Пользователь № %d не найден", id));
+            throw new EntityNotFoundException(String.format("Пользователь № %d не найден", id));
         }
     }
 
@@ -50,7 +49,7 @@ public class InMemoryUserStorage implements UserStorage {
         return Optional.ofNullable(users.values().stream()
                 .filter(f -> f.getId() == id)
                 .findFirst()
-                .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь № %d не найден", id))));
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователь № %d не найден", id))));
     }
 
     public Optional<User> addFriends(Integer userId, Integer friendId) {

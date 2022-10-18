@@ -9,7 +9,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.DataBaseException;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.Date;
@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-//@Qualifier("UserDbStorage")
 @Primary
 @RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
@@ -40,7 +39,7 @@ public class UserDbStorage implements UserStorage {
         } catch (DataAccessException e) {
             throw new DataBaseException("Ошибка получения User из базы данных");
         } catch (Throwable e) {
-            throw new UserNotFoundException(String.format("User № %d в БД не найден!", id));
+            throw new EntityNotFoundException(String.format("User № %d в БД не найден!", id));
         }
     }
 

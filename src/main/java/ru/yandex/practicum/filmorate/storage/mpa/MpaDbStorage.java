@@ -6,7 +6,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.DataBaseException;
-import ru.yandex.practicum.filmorate.exception.MpaNotFoundException;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
@@ -36,7 +36,7 @@ public class MpaDbStorage implements MpaStorage {
         } catch (DataAccessException e) {
             throw new DataBaseException("Ошибка получения Mpa из базы данных");
         } catch (Throwable e) {
-            throw new MpaNotFoundException(String.format("Mpa № %d в БД не найден!", id));
+            throw new EntityNotFoundException(String.format("Mpa № %d в БД не найден!", id));
         }
     }
 

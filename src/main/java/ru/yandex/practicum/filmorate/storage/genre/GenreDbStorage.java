@@ -6,7 +6,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.DataBaseException;
-import ru.yandex.practicum.filmorate.exception.GenreNotFoundException;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.ResultSet;
@@ -36,7 +36,7 @@ public class GenreDbStorage implements GenreStorage {
         } catch (DataAccessException e) {
             throw new DataBaseException("Ошибка получения GENRE из базы данных");
         } catch (Throwable e) {
-            throw new GenreNotFoundException(String.format("GENRE № %d в БД не найден!", id));
+            throw new EntityNotFoundException(String.format("GENRE № %d в БД не найден!", id));
         }
     }
 

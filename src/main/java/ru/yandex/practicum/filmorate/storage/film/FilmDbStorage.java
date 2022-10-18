@@ -9,7 +9,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.DataBaseException;
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -26,7 +26,6 @@ import java.util.Optional;
 
 @Slf4j
 @Component
-//@Qualifier("UserDbStorage")
 @Primary
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
@@ -42,7 +41,7 @@ public class FilmDbStorage implements FilmStorage {
         } catch (DataAccessException e) {
             throw new DataBaseException("Ошибка получения Film по ID из базы данных");
         } catch (Throwable e) {
-            throw new FilmNotFoundException(String.format("Film № %d в БД не найден!", id));
+            throw new EntityNotFoundException(String.format("Film № %d в БД не найден!", id));
         }
     }
 

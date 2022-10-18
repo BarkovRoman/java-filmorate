@@ -102,23 +102,6 @@ class FilmControllerTest {
                 .andExpect(mvcResult -> mvcResult.getResolvedException().getClass().equals(ValidationException.class));
     }
 
-//    @Test
-//    public void filmUpdate() throws Exception {
-//        Mpa mpa = new Mpa(1, "G");
-//        Film film = new Film(1, "filmUpdate", RandomString.make(100), RELEASE_DATA, 120, mpa);
-//        Film film1 = new Film(1, "newFilmUpdate", RandomString.make(100), RELEASE_DATA, 120, mpa);
-//        filmController.create(film);
-//
-//        mockMvc.perform(
-//                        put("/films")
-//                                .content(objectMapper.writeValueAsString(film1))
-//                                .contentType(MediaType.APPLICATION_JSON)
-//                )
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id").isNumber())
-//                .andExpect(jsonPath("$.name").value("newFilmUpdate"));
-//    }
-
     @Test
     public void filmUpdateId() throws Exception {
         Mpa mpa = new Mpa(1, "G");

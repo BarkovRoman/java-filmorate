@@ -2,8 +2,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -39,7 +38,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             films.put(id, film);
             return Optional.of(film);
         } else {
-            throw new FilmNotFoundException(String.format("Фильм № %d не найден", id ));
+            throw new EntityNotFoundException(String.format("Фильм № %d не найден", id ));
         }
     }
 
@@ -48,7 +47,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return Optional.ofNullable(films.values().stream()
                 .filter(f -> f.getId() == id)
                 .findFirst()
-                .orElseThrow(() -> new UserNotFoundException(String.format("Фильм № %d не найден", id))));
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Фильм № %d не найден", id))));
     }
 
     @Override
