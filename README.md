@@ -18,12 +18,11 @@
 
 SELECT
 f.name,  
-f.description,  
-COUNT(l.user_id) AS quantity_like  
+f.description,   
 FROM film AS f  
 LEFT OUTER JOIN like AS l ON  f.film_id = l.film_id  
-GROUP BY f.name  
-ORDER BY l.film_id DESC  
+GROUP BY f.film_id
+ORDER BY COUNT(l.user_id) AS quantity_like   
 LIMIT 10;
 
 #### Получение списка всех пользователей

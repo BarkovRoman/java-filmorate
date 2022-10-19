@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.sql.Date;
@@ -31,6 +32,7 @@ import java.util.Optional;
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final UserStorage userStorage;
+    private final MpaStorage mpaStorage;
 
     @Override
     public Optional<Film> getFilmById(Integer id) {
@@ -96,8 +98,8 @@ public class FilmDbStorage implements FilmStorage {
 
     private void genreOfFilm(Film film) {
         String sql = "SELECT* FROM FILM_GENRES fg " +
-        "LEFT JOIN GENRES g ON fg.GENRE_ID  = g.ID_GENRES "+
-        "WHERE fg.FILM_ID = ? ORDER BY g.ID_GENRES ASC ";
+                "LEFT JOIN GENRES g ON fg.GENRE_ID  = g.ID_GENRES " +
+                "WHERE fg.FILM_ID = ?";
         try {
             jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), film.getId()).forEach(film::addGenre);
         } catch (DataAccessException e) {
@@ -109,7 +111,7 @@ public class FilmDbStorage implements FilmStorage {
         try {
             return new Genre(rs.getInt("ID_GENRES"), rs.getString("NAME_GENRES"));
         } catch (SQLException e) {
-            throw new DataBaseException("Ошибка получения ID USER Like из базы данных");
+            throw new DataBaseException("Ошибка получения ID_GENRES из базы данных");
         }
     }
 
@@ -183,6 +185,7 @@ public class FilmDbStorage implements FilmStorage {
 
         film.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         log.info("Фильм {} добавлен в БД", film);
+        film.getMpa().setName(mpaStorage.getMpaById(film.getMpa().getId()).get().getName());
         if (film.getGenres().size() != 0) {
             addGenre(film);
         }
@@ -208,7 +211,7 @@ public class FilmDbStorage implements FilmStorage {
         }
         addGenre(film);
         log.info("Обновление данных фильма в БД {}", film);
-        film.getGenres().clear();
+        film.getMpa().setName(mpaStorage.getMpaById(film.getMpa().getId()).get().getName());
 
         return getFilmById(id);
     }
@@ -221,17 +224,20 @@ public class FilmDbStorage implements FilmStorage {
             throw new DataBaseException("Ошибка удаления Like из БД");
         }
 
-        for (Genre genre : film.getGenres()) {
-            String sqlQueryGenre = "INSERT INTO FILM_GENRES(FILM_ID, GENRE_ID) VALUES (?, ?)";
-            try {
-                jdbcTemplate.update(sqlQueryGenre
-                        , film.getId()
-                        , genre.getId()
-                );
-            } catch (DataAccessException e) {
-                throw new DataBaseException("Ошибка обновления жанра Film в БД");
-            }
-        }
+        film.getGenres()
+                .forEach(genre -> {
+                    String sqlQueryGenre = "INSERT INTO FILM_GENRES(FILM_ID, GENRE_ID) VALUES (?, ?)";
+                    try {
+                        jdbcTemplate.update(sqlQueryGenre
+                                , film.getId()
+                                , genre.getId()
+                        );
+                    } catch (DataAccessException e) {
+                        throw new DataBaseException("Ошибка обновления жанра Film в БД");
+                    }
+                });
+        film.getGenres().clear();
+        genreOfFilm(film);
         log.info("Обновление жанра фильма {}", film);
     }
 }
