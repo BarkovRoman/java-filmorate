@@ -1,24 +1,26 @@
-DELETE FROM USERS where ID_USER > 0;
-DELETE FROM FILMS where ID_FILMS > 0;
-DELETE FROM LIKES where FILM_ID > 0;
-DELETE FROM FRIENDS where USER_ID > 0;
-DELETE FROM FILM_GENRES where FILM_ID > 0;
-ALTER TABLE USERS ALTER COLUMN ID_USER RESTART WITH 1;
-ALTER TABLE FILMS ALTER COLUMN ID_FILMS RESTART WITH 1;
+DELETE FROM USERS where id_user > 0;
+DELETE FROM FILMS where id_films > 0;
+DELETE FROM LIKES where film_id > 0;
+DELETE FROM FRIENDS where user_id > 0;
+DELETE FROM FILM_GENRES where film_id > 0;
+ALTER TABLE USERS ALTER COLUMN id_user RESTART WITH 1;
+ALTER TABLE FILMS ALTER COLUMN id_films RESTART WITH 1;
 
 
-MERGE INTO GENRES (ID_GENRES, NAME_GENRES) values (1, 'Комедия');
-MERGE INTO GENRES (ID_GENRES, NAME_GENRES) values (2, 'Драма');
-MERGE INTO GENRES (ID_GENRES, NAME_GENRES) values (3, 'Мультфильм');
-MERGE INTO GENRES (ID_GENRES, NAME_GENRES) values (4, 'Триллер');
-MERGE INTO GENRES (ID_GENRES, NAME_GENRES) values (5, 'Документальный');
-MERGE INTO GENRES (ID_GENRES, NAME_GENRES) values (6, 'Боевик');
+MERGE INTO GENRES (id_genres, name_genres)
+    values (1, 'Комедия'),
+           (2, 'Драма'),
+           (3, 'Мультфильм'),
+           (4, 'Триллер'),
+           (5, 'Документальный'),
+           (6, 'Боевик');
 
-MERGE INTO MPA (ID_MPA, NAME_MPA) VALUES (1, 'G');
-MERGE INTO MPA (ID_MPA, NAME_MPA) VALUES (2, 'PG');
-MERGE INTO MPA (ID_MPA, NAME_MPA) VALUES (3, 'PG-13');
-MERGE INTO MPA (ID_MPA, NAME_MPA) VALUES (4, 'R');
-MERGE INTO MPA (ID_MPA, NAME_MPA) VALUES (5, 'NC-17');
+MERGE INTO MPA (ID_MPA, NAME_MPA)
+    VALUES (1, 'G'),
+           (2, 'PG'),
+           (3, 'PG-13'),
+           (4, 'R'),
+           (5, 'NC-17');
 
 
 

@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -23,17 +22,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Component
-@Primary
+@Component("UserDbStorage")
 @RequiredArgsConstructor
+
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public Optional<User> getUserById(Integer id) {
-        String sql = "SELECT* FROM USERS WHERE ID_USER = ?";
-        //String sql = "SELECT* FROM USERS u INNER JOIN FRIENDS f ON u.ID_USER = f.USER_ID WHERE ID_USER = ?";
+        String sql = "SELECT* FROM USERS WHERE id_user = ?";
         try {
             return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id).get(0);
         } catch (DataAccessException e) {
@@ -55,11 +53,11 @@ public class UserDbStorage implements UserStorage {
 
     private Optional<User> makeUser(ResultSet rs) {
         try {
-            int id = rs.getInt("ID_USER");
-            String email = rs.getString("EMAIL");
-            String login = rs.getString("LOGIN");
-            String name = rs.getString("NAME_USER");
-            LocalDate birthday = rs.getDate("BIRTHDAY").toLocalDate();
+            int id = rs.getInt("id_user");
+            String email = rs.getString("email");
+            String login = rs.getString("login");
+            String name = rs.getString("name_user");
+            LocalDate birthday = rs.getDate("birthday").toLocalDate();
             User user = new User(id, email, login, name, birthday);
 
             friendsOfUser(user);
@@ -72,7 +70,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     private void friendsOfUser(User user) {
-        String sql = "SELECT OTHER_ID FROM FRIENDS WHERE USER_ID = ?";
+        String sql = "SELECT other_id FROM FRIENDS WHERE user_id = ?";
         try {
             jdbcTemplate.query(sql, (rs, rowNum) -> makeFriends(rs), user.getId()).forEach(user::addFriends);
         } catch (DataAccessException e) {
@@ -82,7 +80,7 @@ public class UserDbStorage implements UserStorage {
 
     private Integer makeFriends(ResultSet rs) {
         try {
-            return rs.getInt("OTHER_ID");
+            return rs.getInt("other_id");
         } catch (SQLException e) {
             throw new DataBaseException("Ошибка получения Friends из базы данных");
         }
@@ -90,7 +88,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Optional<User> addUser(User user) {
-        String sqlQuery = "INSERT INTO USERS (NAME_USER, LOGIN, EMAIL, BIRTHDAY) VALUES( ?, ?, ?, ?)";
+        String sqlQuery = "INSERT INTO USERS (name_user, login, email, birthday) VALUES( ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         try {
             jdbcTemplate.update(connection -> {
@@ -114,7 +112,7 @@ public class UserDbStorage implements UserStorage {
         int id = user.getId();
         getUserById(id);
 
-        String sqlQuery = "UPDATE USERS SET NAME_USER = ?, LOGIN = ?, EMAIL = ?, BIRTHDAY = ? WHERE ID_USER = ?";
+        String sqlQuery = "UPDATE USERS SET name_user = ?, login = ?, email = ?, birthday = ? WHERE id_user = ?";
         try {
             jdbcTemplate.update(sqlQuery
                     , user.getName()
@@ -135,7 +133,7 @@ public class UserDbStorage implements UserStorage {
         getUserById(friendId);
         user.ifPresent(user1 -> user1.addFriends(friendId));
 
-        String sqlQuery = "INSERT INTO FRIENDS (USER_ID, OTHER_ID) VALUES(?, ?)";
+        String sqlQuery = "INSERT INTO FRIENDS (user_id, other_id) VALUES(?, ?)";
         try {
             jdbcTemplate.update(sqlQuery, userId, friendId);
         } catch (DataAccessException e) {
@@ -152,7 +150,7 @@ public class UserDbStorage implements UserStorage {
         getUserById(friendId);
         user.ifPresent(user1 -> user1.removeFriends(friendId));
 
-        String sqlQuery = "DELETE FROM FRIENDS WHERE USER_ID = ? AND OTHER_ID = ?";
+        String sqlQuery = "DELETE FROM FRIENDS WHERE user_id = ? AND other_id = ?";
         try {
             jdbcTemplate.update(sqlQuery, userId, friendId);
         } catch (DataAccessException e) {
@@ -165,7 +163,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<Optional<User>> allFriends(Integer userId) {
-        String sql = "SELECT OTHER_ID FROM FRIENDS WHERE USER_ID = ?";
+        String sql = "SELECT other_id FROM FRIENDS WHERE user_id = ?";
         try {
             return jdbcTemplate.query(sql, (rs, rowNum) -> makeFriends(rs), userId).stream()
                     .map(this::getUserById)
@@ -177,8 +175,8 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<Optional<User>> mutualFriends(Integer userId, Integer otherId) {
-        String sql = "SELECT OTHER_ID FROM FRIENDS WHERE USER_ID IN (?, ?)" +
-                "GROUP BY OTHER_ID HAVING COUNT(OTHER_ID) > 1";
+        String sql = "SELECT other_id FROM FRIENDS WHERE user_id IN (?, ?)" +
+                "GROUP BY other_id HAVING COUNT(other_id) > 1";
         try {
             return jdbcTemplate.query(sql, (rs, rowNum) -> makeFriends(rs), userId, otherId).stream()
                     .map(this::getUserById)

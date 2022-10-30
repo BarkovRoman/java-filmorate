@@ -30,7 +30,7 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     public Optional<Mpa> getMpaById(Integer id){
-        String sql = "SELECT* FROM MPA WHERE ID_MPA = ?";
+        String sql = "SELECT* FROM MPA WHERE id_mpa = ?";
         try {
             return jdbcTemplate.query(sql, (rs, rowNum) -> makeMpa(rs), id).get(0);
         } catch (DataAccessException e) {
@@ -42,8 +42,8 @@ public class MpaDbStorage implements MpaStorage {
 
     private Optional<Mpa> makeMpa(ResultSet rs) {
         try {
-            int id = rs.getInt("ID_MPA");
-            String name = rs.getString("NAME_MPA");
+            int id = rs.getInt("id_mpa");
+            String name = rs.getString("name_mpa");
             Mpa mpa = new Mpa(id, name);
 
             log.info("Найден Mpa в БД: {} ", mpa);

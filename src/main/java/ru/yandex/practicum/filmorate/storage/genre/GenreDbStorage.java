@@ -30,7 +30,7 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     public Optional<Genre> getGenreById(Integer id){
-        String sql = "SELECT* FROM GENRES WHERE ID_GENRES = ?";
+        String sql = "SELECT* FROM GENRES WHERE id_genres = ?";
         try {
             return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), id).get(0);
         } catch (DataAccessException e) {
@@ -42,8 +42,8 @@ public class GenreDbStorage implements GenreStorage {
 
     private Optional<Genre> makeGenre(ResultSet rs) {
         try {
-            int id = rs.getInt("ID_GENRES");
-            String name = rs.getString("NAME_GENRES");
+            int id = rs.getInt("id_genres");
+            String name = rs.getString("name_genres");
             Genre genre = new Genre(id, name);
 
             log.info("Найден жанр в БД: {} ", genre);
