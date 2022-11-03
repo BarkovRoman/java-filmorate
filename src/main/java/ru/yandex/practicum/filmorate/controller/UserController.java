@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Validated
@@ -20,50 +21,50 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<User> findAll() {
+    public List<Optional<User>> findAll() {
         return userService.allUser();
     }
 
     @PostMapping
-    public User create(@Valid @RequestBody User user) {
+    public Optional<User> create(@Valid @RequestBody User user) {
         validation(user);
         log.info("Создан пользователь {}", user);
         return userService.addUser(user);
     }
 
     @PutMapping
-    public User put(@Valid @RequestBody User user) {
+    public Optional<User> put(@Valid @RequestBody User user) {
         validation(user);
         log.info("Обновление данных пользователя {}", user);
         return userService.updateUser(user);
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Integer id) {
-        log.info("GET /films/{}", id);
+    public Optional<User> getUserById(@PathVariable Integer id) {
+        log.info("GET /users/{}", id);
         return userService.getUserById(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")  // Добавление в друзья
-    public User addFriends(@PathVariable("id") Integer userId, @PathVariable Integer friendId) {
-        log.info("Пользователь ID {} добавил в друзья пользователя ID {}",userId, friendId);
+    public Optional<User> addFriends(@PathVariable("id") Integer userId, @PathVariable Integer friendId) {
+        log.info("Пользователь ID {} добовляет ID {}",userId, friendId);
         return userService.addFriends(userId, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")  // Удаление из друзей
-    public User deleteFriends(@PathVariable("id") Integer userId, @PathVariable Integer friendId) {
-        log.info("Пользователь ID {} удалил из друзей пользователя ID {}",userId, friendId);
+    public Optional<User> deleteFriends(@PathVariable("id") Integer userId, @PathVariable Integer friendId) {
+        log.info("Пользователь ID {} удаляет ID {}",userId, friendId);
         return userService.deleteFriends(userId, friendId);
     }
 
     @GetMapping("/{id}/friends")  // Возвращаем список пользователей, являющихся его друзьями
-    public List<User> friends(@PathVariable Integer id) {
+    public List<Optional<User>> friends(@PathVariable Integer id) {
         log.info("Просмотр списка друзей пользователя ID {}", id);
         return userService.allFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}") // список друзей, общих с другим пользователем
-    public List<User> mutualFriends(@PathVariable("id") Integer userId, @PathVariable Integer otherId) {
+    public List<Optional<User>> mutualFriends(@PathVariable("id") Integer userId, @PathVariable Integer otherId) {
         log.info("Просмотр списка общих друзей пользователя ID {} и ID {}", userId, otherId);
         return userService.mutualFriends(userId, otherId);
     }

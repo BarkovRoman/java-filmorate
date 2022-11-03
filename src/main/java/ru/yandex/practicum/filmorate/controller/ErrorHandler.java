@@ -6,10 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.*;
 
 import javax.validation.ConstraintViolationException;
 
@@ -17,8 +14,8 @@ import javax.validation.ConstraintViolationException;
 @RestControllerAdvice
 public class ErrorHandler {
     @ExceptionHandler
-    public ResponseEntity<String> handleIdFilm(final FilmNotFoundException e) {
-        log.info("Film 404 {}", e.getMessage());
+    public ResponseEntity<String> handleEntity(final EntityNotFoundException e) {
+        log.info("Ошибка 404 {}", e.getMessage());
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
@@ -26,12 +23,6 @@ public class ErrorHandler {
     public ResponseEntity<String> handleValidation(final ValidationException e) {
         log.info("Ошибка валидации 400 {}", e.getMessage());
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<String> handleIdUser(final UserNotFoundException e) {
-        log.info("User 404 {}", e.getMessage());
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
@@ -56,5 +47,11 @@ public class ErrorHandler {
     public ResponseEntity<String> exc(ConstraintViolationException e){
         log.info("Ошибка валидации 400 {}", e.getMessage());
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleDataBaseException(DataBaseException e) {
+        log.error("Ошибка БД 404 {}", e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 }
