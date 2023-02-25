@@ -1,71 +1,49 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    @Qualifier("UserDbStorage")
     private final UserStorage userStorage;
 
-    public List<User> allUser() {
+    public List<Optional<User>> allUser() {
         return userStorage.allUser();
     }
 
-    public User addUser(User user) {
+    public Optional<User> addUser(User user) {
         return userStorage.addUser(user);
     }
 
-    public User updateUser(User user) {
+    public Optional<User> updateUser(User user) {
         return userStorage.updateUser(user);
     }
 
-    public User getUserById(Integer id) {
-        return userStorage.allUser().stream()
-                .filter(f -> f.getId() == id)
-                .findFirst()
-                .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь № %d не найден", id)));
+    public Optional<User> getUserById(Integer id) {
+        return userStorage.getUserById(id);
     }
 
-    public User addFriends(Integer userId, Integer friendId) {
-        User user = getUserById(userId);
-        User friendsUser = getUserById(friendId);
-
-        user.addFriends(friendId);
-        friendsUser.addFriends(userId);
-
-        return user;
+    public Optional<User> addFriends(Integer userId, Integer friendId) {
+        return userStorage.addFriends(userId, friendId);
     }
 
-    public User deleteFriends(Integer userId, Integer friendId) {
-        User user = getUserById(userId);
-        User friendsUser = getUserById(friendId);
-
-        user.removeFriends(friendsUser.getId());
-        friendsUser.removeFriends(user.getId());
-        return user;
+    public Optional<User> deleteFriends(Integer userId, Integer friendId) {
+        return userStorage.deleteFriends(userId, friendId);
     }
 
-    public List<User> allFriends(Integer userId) {
-        User user = getUserById(userId);
-        return user.getFriends().stream()
-                .map(this::getUserById)
-                .collect(Collectors.toList());
+    public List<Optional<User>> allFriends(Integer userId) {
+        return userStorage.allFriends(userId);
     }
 
-    public List<User> mutualFriends(Integer userId, Integer otherId) {  // вывод списка общих друзей
-        User user = getUserById(userId);
-        User friendsUser = getUserById(otherId);
-
-        return user.getFriends().stream()
-                .filter(f -> friendsUser.getFriends().contains(f))
-                .map(this::getUserById)
-                .collect(Collectors.toList());
+    public List<Optional<User>> mutualFriends(Integer userId, Integer otherId) {  // вывод списка общих друзей
+        return userStorage.mutualFriends(userId, otherId);
     }
 }
